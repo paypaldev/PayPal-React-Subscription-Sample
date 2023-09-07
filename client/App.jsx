@@ -8,9 +8,11 @@ function Message({ content }) {
 
 function App() {
   const initialOptions = {
-    "client-id": "YOUR_PAYPAL_CLIENT_ID",
+    "client-id": "ATcbsWeJib7eBUta2p5NaO64gvVFwIjJV2vEBu9wfP_ALWWiUtlxuo0OHxeCBsv807oldJyihRjS5AzR",
     "enable-funding": "paylater,venmo",
     "data-sdk-integration-source": "integrationbuilder_sc",
+    "vault": "true",
+    "intent":"subscription"
   };
 
   const [message, setMessage] = useState("");
@@ -24,89 +26,52 @@ function App() {
             //color:'blue' change the default color of the buttons
             layout: "vertical", //default value. Can be changed to horizontal
           }}
-          createOrder={async () => {
+          createSubscription={async () => {
             try {
-              const response = await fetch("/api/orders", {
+              const response = await fetch("/api/paypal/create-subscription", {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
                 },
-                // use the "body" param to optionally pass additional order information
-                // like product ids and quantities
-                body: JSON.stringify({
-                  cart: [
-                    {
-                      id: "YOUR_PRODUCT_ID",
-                      quantity: "YOUR_PRODUCT_QUANTITY",
-                    },
-                  ],
-                }),
+                body: JSON.stringify({ userAction: "SUBSCRIBE_NOW" }),
               });
-
-              const orderData = await response.json();
-
-              if (orderData.id) {
-                return orderData.id;
+              const data = await response.json();
+              if (data?.id) {
+                setMessage(`Successful subscription...`);
+                return data.id;
               } else {
-                const errorDetail = orderData?.details?.[0];
-                const errorMessage = errorDetail
-                  ? `${errorDetail.issue} ${errorDetail.description} (${orderData.debug_id})`
-                  : JSON.stringify(orderData);
-
-                throw new Error(errorMessage);
+                console.error(
+                  { callback: "createSubscription", serverResponse: data },
+                  JSON.stringify(data, null, 2),
+                );
+                // (Optional) The following hides the button container and shows a message about why checkout can't be initiated
+                const errorDetail = data?.details?.[0];
+                setMessage(
+                  `Could not initiate PayPal Subscription...<br><br>${
+                    errorDetail?.issue || ""
+                  } ${errorDetail?.description || data?.message || ""} ` +
+                    (data?.debug_id ? `(${data.debug_id})` : ""),
+                  { hideButtons: true },
+                );
               }
             } catch (error) {
               console.error(error);
-              setMessage(`Could not initiate PayPal Checkout...${error}`);
+              setMessage(`Could not initiate PayPal Subscription...${error}`);
             }
           }}
           onApprove={async (data, actions) => {
-            try {
-              const response = await fetch(
-                `/api/orders/${data.orderID}/capture`,
-                {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                },
-              );
-
-              const orderData = await response.json();
-              // Three cases to handle:
-              //   (1) Recoverable INSTRUMENT_DECLINED -> call actions.restart()
-              //   (2) Other non-recoverable errors -> Show a failure message
-              //   (3) Successful transaction -> Show confirmation or thank you message
-
-              const errorDetail = orderData?.details?.[0];
-
-              if (errorDetail?.issue === "INSTRUMENT_DECLINED") {
-                // (1) Recoverable INSTRUMENT_DECLINED -> call actions.restart()
-                // recoverable state, per https://developer.paypal.com/docs/checkout/standard/customize/handle-funding-failures/
-                return actions.restart();
-              } else if (errorDetail) {
-                // (2) Other non-recoverable errors -> Show a failure message
-                throw new Error(
-                  `${errorDetail.description} (${orderData.debug_id})`,
-                );
-              } else {
-                // (3) Successful transaction -> Show confirmation or thank you message
-                // Or go to another URL:  actions.redirect('thank_you.html');
-                const transaction =
-                  orderData.purchase_units[0].payments.captures[0];
-                setMessage(
-                  `Transaction ${transaction.status}: ${transaction.id}. See console for all available details`,
-                );
-                console.log(
-                  "Capture result",
-                  orderData,
-                  JSON.stringify(orderData, null, 2),
-                );
-              }
-            } catch (error) {
-              console.error(error);
+            /*
+              No need to activate manually since SUBSCRIBE_NOW is being used.
+              Learn how to handle other user actions from our docs:
+              https://developer.paypal.com/docs/api/subscriptions/v1/#subscriptions_create
+            */
+            if (data.orderID) {
               setMessage(
-                `Sorry, your transaction could not be processed...${error}`,
+                `You have successfully subscribed to the plan. Your subscription id is: ${data.subscriptionID}`,
+              );
+            } else {
+              setMessage(
+                `Failed to activate the subscription: ${data.subscriptionID}`,
               );
             }
           }}

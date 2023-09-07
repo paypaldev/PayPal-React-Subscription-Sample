@@ -18,9 +18,9 @@
   <hr />
 </div>
 
-# PayPal React (NodeJS) FullStack Standard Checkout
+# PayPal React (NodeJS) Fullstack Subscription
 
-This sample app shows you how to integrate PayPal into your React app for the [standard checkout](https://developer.paypal.com/docs/checkout/standard/integrate/) workflow.
+This sample app shows you how to integrate PayPal into your React app to add subscription payments.
 
 ## Run this project
 
