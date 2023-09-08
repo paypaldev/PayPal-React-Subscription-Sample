@@ -20,7 +20,7 @@
 
 # PayPal React (NodeJS) Fullstack Subscription
 
-This sample app shows you how to integrate PayPal into your React app to add subscription payments.
+This sample app shows how to integrate PayPal into your React app to add subscription payments.
 
 ## Run this project
 
@@ -29,7 +29,7 @@ This sample app shows you how to integrate PayPal into your React app to add sub
 [![Open Code In GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/paypaldev/PayPal-React-FullStack-Standard-Checkout-Sample?devcontainer_path=.devcontainer%2Fdevcontainer.json)
 
 - Rename the `.env.example` file to `.env`.
-- Add your enviroment variables in the .env file.
+- Add your environment variables in the .env file.
 
 ### Locally
 
@@ -39,12 +39,12 @@ First, install the frontend and backend dependencies with `npm install`.
 
 ### Config Frontend
 
-- Inside of the `client/App.jsx` file, enter your PayPal `client-id` inside the `initialOptions` object.
+- Inside the `client/App.jsx` file, enter your PayPal `client-id` inside the `initialOptions` object.
 
 ### Config Backend
 
 - Rename the `.env.example` file to .env.
-- Inside the `.env` file, enter your PayPal client ID for the `PAYPAL_CLIENT_ID` and your PayPal app secret for the `PAYPAL_CLIENT_SECRET` environment variables.
+- Inside the `.env` file, enter your PayPal client ID for the `PAYPAL_CLIENT_ID`, your subscription plan id for the `PLAN_ID`, and your PayPal app secret for the `PAYPAL_CLIENT_SECRET` environment variables.
 
 ### Run app
 
